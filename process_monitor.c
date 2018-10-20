@@ -1,3 +1,12 @@
+/*
+----------------------------------
+# Desenvolvido por Adriel Freud!
+# Contato: businessc0rp2k17@gmail.com
+# FB: http://www.facebook.com/xrn401
+#   =>DebutySecTeamSecurity<=
+----------------------------------
+*/
+
 
 #include <stdlib.h>
 #include <stdio.h>
