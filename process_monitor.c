@@ -82,13 +82,13 @@ int watcher_file_manager(char **argv){
         	evento = (struct inotify_event *)&buf[i];
 
 		if(evento->mask & IN_CREATE){
-			log_register("<< Arquivo Criado!", evento->name);
+			log_register("<< File Created!", evento->name);
 
 		}else if(evento->mask & IN_DELETE){
-			log_register("<< Arquivo Deletado!", evento->name);
+			log_register("<< File Deletad!", evento->name);
 
 		}else{
-			log_register("<< Arquivo Acessado!", evento->name);
+			log_register("<< File Accessed!", evento->name);
 		}
         i += TAMANHO_EVENTO + evento->len;
         }
