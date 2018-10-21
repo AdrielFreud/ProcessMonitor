@@ -37,19 +37,11 @@ int main(int argc, char **argv){
 int watcher_file_manager(char **argv){
 	int fd, wd;
 	int i, t, l;
-
 	char buf[TAMANHO_BUF];
-	char cwd[1024];
 
 	fd_set rfds;
 	struct inotify_event *evento;
-	memset(cwd, 0, sizeof(cwd));
-
-	if(getcwd(cwd, sizeof(cwd)) == NULL){
-		perror("getcwd()");
-		exit(1);
-	}
-
+	
 	if((fd = inotify_init()) < 0){
 		perror("inotify_init");
 		exit(1);
