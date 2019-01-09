@@ -91,7 +91,7 @@ int watcher_file_manager(char **argv){
 
 void log_register(char *mnsg, char *program){
         for(int i = 0; i<1; i++){
-                if(sizeof(mnsg[i]) != 1 && sizeof(program[i] != 1)){
+                if(sizeof(mnsg[i]) != 1 && sizeof(program[i]) != 1){
                         fprintf(stderr, "[!] This name of program are not Valid!\n");
                         exit(1);
                 }else{
