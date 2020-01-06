@@ -7,12 +7,11 @@
 ----------------------------------
 */
 
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <syslog.h>
+#include <gtk/gtk.h>
 #include <sys/inotify.h>
 #include <sys/time.h>
 #include <sys/select.h>
@@ -21,23 +20,22 @@
 #define TAMANHO_EVENTO (sizeof(struct inotify_event))
 #define TAMANHO_BUF 1024*TAMANHO_EVENTO
 
-void log_register(char *mnsg, char *program);
-int watcher_file_manager(char **argv);
+static GtkWidget *command_compile;
+static GtkWidget *command_run;
+static GtkWidget *working;
 
-int main(int argc, char **argv){
-	if(argc < 2){
-		printf("\n\tAdrielFreud\n\n");
-		printf("Use: %s <arquivo/diretorio>\n", argv[0]);
-		exit(1);
-	}
-	watcher_file_manager(argv);
-	return 0;
-}
+void update(char *run[], char *comp[]);
+int watcher_file_manager(void);
 
-int watcher_file_manager(char **argv){
+int watcher_file_manager(void){
+	gtk_label_set_text(GTK_LABEL(working), "Working....");
+
 	int fd, wd;
 	int i, t, l;
 	char buf[TAMANHO_BUF];
+
+	char *comp[] = {(char* )gtk_entry_get_text(GTK_ENTRY(command_compile)), NULL};
+	char *run[] = {(char *)gtk_entry_get_text(GTK_ENTRY(command_run)), NULL};
 
 	fd_set rfds;
 	struct inotify_event *evento;
@@ -47,7 +45,7 @@ int watcher_file_manager(char **argv){
 		exit(1);
 	}
 
-	wd = inotify_add_watch(fd, argv[1], IN_ACCESS | IN_CREATE | IN_DELETE) ;
+	wd = inotify_add_watch(fd, ".", IN_ACCESS | IN_CREATE | IN_DELETE) ;
 
 	if(wd < 0){
         	perror("inotify_add_watch");
@@ -74,13 +72,11 @@ int watcher_file_manager(char **argv){
         	evento = (struct inotify_event *)&buf[i];
 
 		if(evento->mask & IN_CREATE){
-			log_register("<< File Created!", evento->name);
-
+			update(run, comp);
 		}else if(evento->mask & IN_DELETE){
-			log_register("<< File Deletad!", evento->name);
-
+			update(run, comp);
 		}else{
-			log_register("<< File Accessed!", evento->name);
+			update(run, comp);
 		}
         i += TAMANHO_EVENTO + evento->len;
         }
@@ -88,17 +84,53 @@ int watcher_file_manager(char **argv){
 
     return 0;
 }
+int main(int argc, char **argv){
+	GtkWidget *window, *label_command, *label_compile, *btn_save, *grid;
+	gtk_init(&argc, &argv);
 
-void log_register(char *mnsg, char *program){
-        for(int i = 0; i<1; i++){
-                if(sizeof(mnsg[i]) != 1 && sizeof(program[i]) != 1){
-                        fprintf(stderr, "[!] This name of program are not Valid!\n");
-                        exit(1);
-                }else{
-                        openlog(program, LOG_PID, LOG_USER);
-                        syslog(LOG_INFO, "%s | getuid - %d\n", mnsg, getuid());
-                        closelog();
-                }
-        }
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+	
+	grid = gtk_grid_new();
+	gtk_container_add(GTK_CONTAINER(window), grid);
+
+	command_compile = gtk_entry_new();
+
+	gtk_grid_attach(GTK_GRID(grid), command_compile, 1, 1, 1, 1);
+
+	command_run = gtk_entry_new();
+	gtk_grid_attach(GTK_GRID(grid), command_run, 0, 1, 1, 1);
+	
+	label_command = gtk_label_new("Command to Run");
+	gtk_grid_attach(GTK_GRID(grid), label_command, 0, 0, 1, 1);	
+
+	label_compile = gtk_label_new("Command to Compile: ");
+	gtk_grid_attach(GTK_GRID(grid), label_compile, 1, 0, 1, 1);
+
+	btn_save = gtk_button_new_with_label("Run");
+	g_signal_connect(btn_save, "clicked", G_CALLBACK(watcher_file_manager), NULL);
+	gtk_grid_attach(GTK_GRID(grid), btn_save, 0, 2, 2, 2);
+
+	working = gtk_label_new(NULL);
+	gtk_grid_attach(GTK_GRID(grid), working, 0, 5, 3, 3);
+
+	gtk_window_set_title(GTK_WINDOW(window), "Update the C0d3");
+	gtk_window_set_default_size(GTK_WINDOW(window), 335, 150);
+
+	gtk_widget_show_all(window);
+	gtk_main();
+
+	return 0;
+}
+
+void update(char *run[], char *comp[]){
+	/*
+	puts("Compilando...");
+	execv(comp[0], comp); 
+	puts("Executando...");
+	execv(run[0], run);
+	puts("Finished...");
+	*/
+	printf("comp: %s\n\nrun: %s\n", comp[0], run[0]);
 }
 
