@@ -141,10 +141,10 @@ int main(int argc, char **argv){
 }
 
 void registry(char *filename, char *text){
+	sleep(1);
 	FILE *fp = fopen(LOGNAME, "a");
 	time(&segundos);
 	data = localtime(&segundos);
 	fprintf(fp, "[Horario - %d:%d:%d][%s] %s", data->tm_hour, data->tm_min, data->tm_sec, filename, text);
 	fclose(fp);
 }
-
